@@ -142,3 +142,35 @@ def search_users(request):
         Q(last_name__icontains=query)
     )
     return render(request, 'search_users.html', {'users': users, 'query': query})
+
+# core/views.py
+
+import openai
+from django.conf import settings
+from django.shortcuts import render
+from .forms import ChatbotForm
+
+def chatbot_view(request):
+    response = None
+    if request.method == 'POST':
+        form = ChatbotForm(request.POST)
+        if form.is_valid():
+            user_input = form.cleaned_data['user_input']
+            
+            # Interact with OpenAI API
+            openai.api_key = settings.OPENAI_API_KEY
+            try:
+                completion = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",  # Or another suitable model
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": user_input},
+                    ]
+                )
+                response = completion.choices[0].message['content'].strip()
+            except Exception as e:
+                response = f"Error: {str(e)}"
+    else:
+        form = ChatbotForm()
+
+    return render(request, 'chatbot.html', {'form': form, 'response': response})

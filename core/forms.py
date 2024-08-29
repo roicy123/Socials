@@ -18,3 +18,10 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
+
+# core/forms.py
+
+from django import forms
+
+class ChatbotForm(forms.Form):
+    user_input = forms.CharField(label='Ask the chatbot', widget=forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message...'}))

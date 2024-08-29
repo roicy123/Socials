@@ -1,33 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Feed</h2>
+  <h2 class="my-4">Feed</h2>
   {% for post in posts %}
-    <div class="card mb-3">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+        <span>Posted by: <strong>{{ post.user.username }}</strong></span>
+        <span>{{ post.created_at|date:"M d, Y H:i" }}</span>
+      </div>
       <div class="card-body">
         <p class="card-text">{{ post.content }}</p>
-        <p class="card-text">Posted by: {{ post.user.username }} on {{ post.created_at }}</p>
-        {% comment %} <p class="card-text">Likes: {{ post.likes.count }}</p> {% endcomment %}
         <div class="d-flex justify-content-between">
           <div>
-            <a href="{% url 'comment_create' post.pk %}" class="btn btn-primary btn-sm">Add Comment</a>
-            <a href="{% url 'like' post.pk %}" class="btn btn-secondary btn-sm">Like {{ post.likes.count }}</a>
+            <a href="{% url 'comment_create' post.pk %}" class="btn btn-outline-primary btn-sm">Comment</a>
+            <a href="{% url 'like' post.pk %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-heart"></i> {{ post.likes.count }} Like{% if post.likes.count != 1 %}s{% endif %}
+            </a>
           </div>
           {% if post.user == request.user %}
-            <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger btn-sm">
+              <i class="bi bi-trash"></i> Delete
+            </a>
           {% endif %}
         </div>
       </div>
       {% if post.comments.exists %}
-        <div class="card-footer">
-          <h5>Comments</h5>
+        <div class="card-footer bg-light">
+          <h5 class="my-2">Comments</h5>
           {% for comment in post.comments.all %}
-            <div class="card mb-2">
-              <div class="card-body">
-                <p class="card-text">{{ comment.content }}</p>
-                <p class="card-text">Posted by: {{ comment.user.username }} on {{ comment.created_at }}</p>
+            <div class="card mb-2 border-0 bg-light">
+              <div class="card-body p-2">
+                <p class="card-text mb-1">{{ comment.content }}</p>
+                <div class="text-muted small">Posted by: {{ comment.user.username }} on {{ comment.created_at|date:"M d, Y H:i" }}</div>
                 {% if comment.user == request.user %}
-                  <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                  <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-danger btn-sm mt-2">
+                    <i class="bi bi-trash"></i> Delete
+                  </a>
                 {% endif %}
               </div>
             </div>

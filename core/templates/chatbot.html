@@ -1,0 +1,27 @@
+<!-- core/templates/chatbot.html -->
+
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Chat with the AI</h2>
+          <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button type="submit" class="btn btn-primary">Send</button>
+          </form>
+          {% if response %}
+            <div class="mt-4">
+              <h4>Response:</h4>
+              <p>{{ response }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

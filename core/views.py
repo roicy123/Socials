@@ -143,34 +143,25 @@ def search_users(request):
     )
     return render(request, 'search_users.html', {'users': users, 'query': query})
 
-# core/views.py
 
-import openai
+# Add these imports at the top of your views.py file
+import google.generativeai as genai
 from django.conf import settings
-from django.shortcuts import render
-from .forms import ChatbotForm
+from django.http import JsonResponse
 
-def chatbot_view(request):
-    response = None
+
+# Initialize the Gemini API
+genai.configure(api_key=settings.GEMINI_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
+
+# Add this new view to your views.py file
+def chatbot(request):
     if request.method == 'POST':
-        form = ChatbotForm(request.POST)
-        if form.is_valid():
-            user_input = form.cleaned_data['user_input']
-            
-            # Interact with OpenAI API
-            openai.api_key = settings.OPENAI_API_KEY
-            try:
-                completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",  # Or another suitable model
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": user_input},
-                    ]
-                )
-                response = completion.choices[0].message['content'].strip()
-            except Exception as e:
-                response = f"Error: {str(e)}"
-    else:
-        form = ChatbotForm()
-
-    return render(request, 'chatbot.html', {'form': form, 'response': response})
+        user_input = request.POST.get('user_input', '')
+        
+        # Generate a response using Gemini
+        response = model.generate_content(user_input)
+        
+        return JsonResponse({'response': response.text})
+    
+    return render(request, 'chatbot.html')

@@ -38,5 +38,6 @@ urlpatterns = [
     # Search Users
     path('search/', views.search_users, name='search_users'),
 
-    path('chatbot/', views.chatbot_view, name='chatbot'),
+    path('chatbot/', views.chatbot, name='chatbot'),
+    
 ]

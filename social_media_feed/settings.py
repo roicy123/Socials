@@ -22,8 +22,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-%$qd$wj3=$^_n9!-6w@25f_u7ipbkh5cir_%qo9gjp1v$#wbl9'
 
-# OpenAI API key
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
+
+# Get the Gemini API key from environment variables
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

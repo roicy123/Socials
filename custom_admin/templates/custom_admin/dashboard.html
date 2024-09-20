@@ -1,0 +1,246 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar shadow-sm">
+            <div class="position-sticky">
+                <h4 class="text-center mt-4 mb-4 font-weight-bold text-primary">Admin Dashboard</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'manage_users' %}">
+                            <i class="bi bi-person"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'manage_posts' %}">
+                            <i class="bi bi-file-text"></i> Manage Posts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'manage_comments' %}">
+                            <i class="bi bi-chat-dots"></i> Manage Comments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'manage_likes' %}">
+                            <i class="bi bi-heart"></i> Manage Likes
+                        </a>
+                    </li>
+                </ul>
+                <div class="mt-4">
+                    <a href="{% url 'admin_logout' %}" class="btn btn-danger w-100 shadow-sm">Logout</a>
+                </div>
+                <div class="mt-2">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary w-100 shadow-sm">Home</a>
+                </div>
+                <div class="mt-2">
+                    <a href="{% url 'admin_reports' %}" class="btn btn-info w-100 shadow-sm">Reports</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            {% block main_content %}
+            <!-- Visualization Section -->
+            <h2 class="my-4 text-center text-secondary">Dashboard Insights</h2>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h4 class="mb-3 text-primary">User, Post, Comment, and Like Counts</h4>
+                    <canvas id="barChart" width="400" height="200" class="shadow-sm border rounded"></canvas>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h4 class="mb-3 text-primary">Post Engagement Over Time</h4>
+                    <canvas id="lineChart" width="400" height="200" class="shadow-sm border rounded"></canvas>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-md-6 mb-4">
+                    <h4 class="mb-3 text-primary">Post Distribution by Users</h4>
+                    <canvas id="pieChart" width="400" height="200" class="shadow-sm border rounded"></canvas>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h4 class="mb-3 text-primary">Comment Distribution by Posts</h4>
+                    <canvas id="doughnutChart" width="400" height="200" class="shadow-sm border rounded"></canvas>
+                </div>
+            </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+            <script>
+                var ctxBar = document.getElementById('barChart').getContext('2d');
+                var barChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Users', 'Posts', 'Comments', 'Likes'],
+                        datasets: [{
+                            label: 'Counts',
+                            data: [
+                                {{ user_count }},
+                                {{ post_count }},
+                                {{ comment_count }},
+                                {{ like_count }}
+                            ],
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(255, 99, 132, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                var ctxLine = document.getElementById('lineChart').getContext('2d');
+                var lineChart = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: {{ months|safe }},
+                        datasets: [{
+                            label: 'Posts Over Time',
+                            data: {{ post_counts|safe }},
+                            backgroundColor: 'rgba(75, 192, 192, 0.3)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Posts'
+                                },
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            zoom: {
+                                pan: {
+                                    enabled: true,
+                                    mode: 'x'
+                                },
+                                zoom: {
+                                    enabled: true,
+                                    mode: 'x'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Pie chart for post distribution by users
+                var ctxPie = document.getElementById('pieChart').getContext('2d');
+                var pieChart = new Chart(ctxPie, {
+                    type: 'pie',
+                    data: {
+                        labels: {{ user_labels|safe }},
+                        datasets: [{
+                            label: 'Posts by Users',
+                            data: {{ user_post_counts|safe }},
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' Posts';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Doughnut chart for comment distribution by posts
+                var ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+                var doughnutChart = new Chart(ctxDoughnut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: {{ post_labels|safe }},
+                        datasets: [{
+                            label: 'Comments per Post',
+                            data: {{ post_comment_counts|safe }},
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 99, 132, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' Comments';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+            {% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

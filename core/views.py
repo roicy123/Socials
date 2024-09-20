@@ -148,20 +148,31 @@ def search_users(request):
 import google.generativeai as genai
 from django.conf import settings
 from django.http import JsonResponse
-
+from django.shortcuts import render
 
 # Initialize the Gemini API
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-pro')
 
-# Add this new view to your views.py file
 def chatbot(request):
     if request.method == 'POST':
         user_input = request.POST.get('user_input', '')
         
-        # Generate a response using Gemini
-        response = model.generate_content(user_input)
+        # Construct a prompt that instructs Gemini to act as your website's bot
+        prompt = f"""You are an AI assistant for our website. Please respond to the following user input as if you were our website's chatbot, not as Gemini. Keep your response friendly, helpful, and in line with our website's tone and purpose.
+
+User input: {user_input}
+
+Your response:"""
         
-        return JsonResponse({'response': response.text})
+        # Generate a response using Gemini
+        response = model.generate_content(prompt)
+        
+        # Extract the generated text from the response
+        bot_response = response.text.strip()
+        
+        return JsonResponse({'response': bot_response})
     
     return render(request, 'chatbot.html')
+def about_us(request):
+    return render(request, 'about_us.html')

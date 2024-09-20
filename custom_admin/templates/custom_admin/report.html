@@ -1,0 +1,158 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="my-4">Reports</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-primary mb-3">Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Download Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'download_user_report_csv' %}" class="btn btn-secondary mb-3">Download User Report (CSV)</a>
+            <a href="{% url 'download_post_report_csv' %}" class="btn btn-secondary mb-3">Download Post Report (CSV)</a>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Summary</h5>
+                </div>
+                <div class="card-body">
+                    <p>This section provides an overview of key metrics and recent activities. You can use this space to summarize the most important findings and trends.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Report Table -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">User Report</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>Date Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.date_joined }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No users found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Report Table -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Post Report</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Post ID</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Date Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in posts %}
+                            <tr>
+                                <td>{{ post.id }}</td>
+                                <td>{{ post.content }}</td>
+                                <td>{{ post.user.username }}</td>
+                                <td>{{ post.created_at }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No posts found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Engagement Chart -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Post Engagement Over Time</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="postEngagementChart" width="400" height="200"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        var ctx = document.getElementById('postEngagementChart').getContext('2d');
+                        var postEngagementChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: {{ months|safe }},
+                                datasets: [{
+                                    label: 'Posts Per Month',
+                                    data: {{ post_counts|safe }},
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1,
+                                    fill: false
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Month'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Posts'
+                                        },
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

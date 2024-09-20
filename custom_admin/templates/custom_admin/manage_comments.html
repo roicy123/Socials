@@ -1,0 +1,32 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Manage Comments</h1>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    <table class="table table-striped table-bordered mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Post</th>
+                <th>Comment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for comment in comments %}
+            <tr>
+                <td>{{ comment.user.username }}</td>
+                <td>{{ comment.post.content }}</td>
+                <td>{{ comment.content }}</td>
+                <td>
+                    <a href="{% url 'delete_comment' comment.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

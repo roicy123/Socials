@@ -1,0 +1,30 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Manage Likes</h1>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    <table class="table table-striped table-bordered mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Post</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for like in likes %}
+            <tr>
+                <td>{{ like.user.username }}</td>
+                <td>{{ like.post.content }}</td>
+                <td>
+                    <a href="{% url 'delete_like' like.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

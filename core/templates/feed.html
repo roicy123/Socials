@@ -1,47 +1,134 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2 class="my-4">Feed</h2>
-  {% for post in posts %}
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-        <span>Posted by: <strong>{{ post.user.username }}</strong></span>
-        <span>{{ post.created_at|date:"M d, Y H:i" }}</span>
+  <style>
+    /* Animated background for the welcome section */
+    .welcome-section {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      padding: 60px 30px;
+      text-align: center;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 200%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: skewX(-30deg);
+      animation: move-bg 6s linear infinite;
+    }
+
+    @keyframes move-bg {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    /* Typography for the welcome text */
+    .welcome-heading {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .welcome-text {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 30px;
+    }
+
+    /* Buttons for call-to-action */
+    .cta-buttons .btn {
+      margin: 0 10px;
+      padding: 10px 30px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .cta-buttons .btn:hover {
+      transform: scale(1.1);
+    }
+  </style>
+
+  <div class="container my-4">
+    <!-- Highly Engaging Welcome Section -->
+    <div class="welcome-section">
+      <h1 class="welcome-heading">Welcome to <strong>Textwave</strong>!</h1>
+      <p class="welcome-text">Discover. Share. Engage. Join the conversation and let your voice be heard in a vibrant community.</p>
+      <div class="cta-buttons">
+        <a href="{% url 'post_create' %}" class="btn btn-warning btn-lg shadow-sm">
+          <i class="bi bi-pencil"></i> Create Your First Post
+        </a>
+        <a href="#feed" class="btn btn-outline-light btn-lg shadow-sm">
+          <i class="bi bi-arrow-down-circle"></i> Explore the Feed
+        </a>
       </div>
-      <div class="card-body">
-        <p class="card-text">{{ post.content }}</p>
-        <div class="d-flex justify-content-between">
-          <div>
-            <a href="{% url 'comment_create' post.pk %}" class="btn btn-outline-primary btn-sm">Comment</a>
-            <a href="{% url 'like' post.pk %}" class="btn btn-outline-secondary btn-sm">
-              <i class="bi bi-heart"></i> {{ post.likes.count }} Like{% if post.likes.count != 1 %}s{% endif %}
-            </a>
-          </div>
-          {% if post.user == request.user %}
-            <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger btn-sm">
-              <i class="bi bi-trash"></i> Delete
-            </a>
-          {% endif %}
-        </div>
-      </div>
-      {% if post.comments.exists %}
-        <div class="card-footer bg-light">
-          <h5 class="my-2">Comments</h5>
-          {% for comment in post.comments.all %}
-            <div class="card mb-2 border-0 bg-light">
-              <div class="card-body p-2">
-                <p class="card-text mb-1">{{ comment.content }}</p>
-                <div class="text-muted small">Posted by: {{ comment.user.username }} on {{ comment.created_at|date:"M d, Y H:i" }}</div>
-                {% if comment.user == request.user %}
-                  <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-danger btn-sm mt-2">
-                    <i class="bi bi-trash"></i> Delete
-                  </a>
-                {% endif %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
     </div>
-  {% endfor %}
+
+    <!-- Posts Feed -->
+    <h2 class="mb-4 text-center" id="feed">Latest Posts</h2>
+    {% for post in posts %}
+      <!-- Post Card -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+          <span>Posted by: <strong>{{ post.user.username }}</strong></span>
+          <span>{{ post.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ post.content }}</p>
+          <div class="d-flex justify-content-between">
+            <div>
+              <a href="{% url 'comment_create' post.pk %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-chat-left-text"></i> Comment
+              </a>
+              <a href="{% url 'like' post.pk %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-heart"></i> {{ post.likes.count }} Like{% if post.likes.count != 1 %}s{% endif %}
+              </a>
+            </div>
+            {% if post.user == request.user %}
+              <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i> Delete
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% if post.comments.exists %}
+          <div class="card-footer bg-light">
+            <h5 class="my-2">Comments</h5>
+            {% for comment in post.comments.all %}
+              <div class="card mb-2 border-0 bg-light shadow-sm">
+                <div class="card-body p-2">
+                  <p class="card-text mb-1">{{ comment.content }}</p>
+                  <div class="text-muted small">Posted by: {{ comment.user.username }} on {{ comment.created_at|date:"M d, Y H:i" }}</div>
+                  {% if comment.user == request.user %}
+                    <a href="{% url 'comment_delete' comment.pk %}" class="btn btn-danger btn-sm mt-2">
+                      <i class="bi bi-trash"></i> Delete
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    {% if not posts %}
+      <div class="alert alert-warning text-center mt-4">
+        <h4>No posts available yet. Be the first to share something!</h4>
+      </div>
+    {% endif %}
+  </div>
 {% endblock %}

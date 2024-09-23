@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_MAIN_DIR_NAME="django-aws-ec2-autoscaling"
-
+PROJECT_MAIN_DIR_NAME="Social"
 # Validate variables
 if [ -z "$PROJECT_MAIN_DIR_NAME" ]; then
     echo "Error: PROJECT_MAIN_DIR_NAME is not set. Please set it to your project directory name." >&2

@@ -93,10 +93,10 @@ WSGI_APPLICATION = 'social_media_feed.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'social_db',
-        'USER': 'roicy',
-        'PASSWORD': '2910',
-        'HOST': 'localhost',
+        'NAME': 'roicy',
+        'USER': 'postgres',
+        'PASSWORD': 'Roicy123.',
+        'HOST': 'database-1.c5wgwi4qg9mg.eu-north-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }

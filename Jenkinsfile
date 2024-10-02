@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    environment {
+        DJANGO_SETTINGS_MODULE = 'your_project_name.settings'
+    }
     stages {
         stage('Clone Repository') {
             steps {

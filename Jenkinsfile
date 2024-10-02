@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/your_repo/social_media_feed.git'
+                git url: 'https://github.com/roicy123/Socials.git', credentialsId: 'git_id'
             }
         }
         stage('Build Docker Image') {

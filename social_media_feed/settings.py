@@ -163,3 +163,5 @@ TESTING = True
 
 if TESTING:
     MIDDLEWARE = [mw for mw in MIDDLEWARE if 'django.middleware.csrf.CsrfViewMiddleware' not in mw]
+
+PASSWORD_VALIDATORS = []

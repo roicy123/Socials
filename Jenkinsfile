@@ -1,36 +1,36 @@
 pipeline {
     agent any
-
     environment {
-        DJANGO_SETTINGS_MODULE = 'social_media_feed.settings'
-        PYTHONPATH = "/usr/src/app"
+        DOCKER_HUB_REPO = 'roicy/socialaws'
+        IMAGE_TAG = 'latest'
+        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials' // Setup in Jenkins
     }
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/roicy123/Socials.git'
+                git 'https://github.com/your_repo/social_media_feed.git'
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    def app = docker.build("socialaws")
+                    dockerImage = docker.build("${DOCKER_HUB_REPO}:${IMAGE_TAG}")
                 }
             }
         }
-        stage('Run Tests') {
+        stage('Push Docker Image') {
             steps {
                 script {
-                    docker.image("socialaws").inside {
-                        sh 'pytest --ds=social_media_feed.settings' // Ensure it runs with Django settings
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push()
                     }
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy to EC2') {
             steps {
-                script {
-                    docker.image("socialaws").run("-d -p 8000:8000") // Deploy app in detached mode
+                sshagent (credentials: ['ec2-ssh-key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@<EC2_IP> "docker pull ${DOCKER_HUB_REPO}:${IMAGE_TAG} && docker-compose down && docker-compose up -d"'
                 }
             }
         }

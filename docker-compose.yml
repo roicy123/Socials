@@ -2,12 +2,10 @@ version: '3'
 
 services:
   web:
-    build: .
+    image: your_dockerhub_username/your_django_app:latest
     command: gunicorn social_media_feed.wsgi:application --bind 0.0.0.0:8000
     ports:
       - "8000:8000"
-    volumes:
-      - .:/usr/src/app
     depends_on:
       - db
 

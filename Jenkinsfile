@@ -9,14 +9,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def app = docker.build("socials")
+                    def app = docker.build("socialaws")
                 }
             }
         }
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image("socials").inside {
+                    docker.image("socialaws").inside {
                         sh 'pytest' // Use your testing command
                     }
                 }
@@ -25,7 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image("socials").run("-d -p 8000:8000") // Run your app in detached mode
+                    docker.image("socialaws").run("-d -p 8000:8000") // Run your app in detached mode
                 }
             }
         }

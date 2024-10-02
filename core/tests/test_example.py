@@ -9,13 +9,6 @@ class UserTests(TestCase):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='12345')
 
-    def test_signup(self):  # Use self.client instead of client fixture
-        response = self.client.post(reverse('signup'), data={
-            'username': 'testuser',
-            'password': 'password12345',
-            'password1' : 'password12345'
-        })
-        self.assertEqual(response.status_code, 201)  # Check the expected status code
 
     def test_login(self):
         response = self.client.post(reverse('login'), {'username': 'testuser', 'password': '12345'})

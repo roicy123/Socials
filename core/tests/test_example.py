@@ -11,8 +11,11 @@ class UserTests(TestCase):
 
     def test_signup(self):
         response = self.client.post(reverse('signup'), {'username': 'newuser', 'password1': 'password123', 'password2': 'password123'})
+        if response.status_code == 200:
+            print(response.context['form'].errors)  # This will print the form errors in the console during the test run
         self.assertEqual(response.status_code, 302)  # Redirect after successful signup
         self.assertEqual(User.objects.count(), 2)
+
 
     def test_login(self):
         response = self.client.post(reverse('login'), {'username': 'testuser', 'password': '12345'})

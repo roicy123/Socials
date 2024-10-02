@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    
+
     environment {
-        DJANGO_SETTINGS_MODULE = 'your_project_name.settings'
+        DJANGO_SETTINGS_MODULE = 'social_media_feed.settings'
     }
     stages {
         stage('Clone Repository') {

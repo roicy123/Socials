@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from core.models import Post, Comment, Like
-import pytest
 
 class UserTests(TestCase):
 
@@ -10,16 +9,13 @@ class UserTests(TestCase):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='12345')
 
-
-    @pytest.mark.django_db
-    def test_signup(client):  # `client` is passed as a fixture
-        response = client.post(reverse('signup'), data={
+    def test_signup(self):  # Use self.client instead of client fixture
+        response = self.client.post(reverse('signup'), data={
             'username': 'testuser',
             'password': 'password12345',
             # Add other required fields as needed
         })
-        assert response.status_code == 201  
-
+        self.assertEqual(response.status_code, 201)  # Check the expected status code
 
     def test_login(self):
         response = self.client.post(reverse('login'), {'username': 'testuser', 'password': '12345'})

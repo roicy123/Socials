@@ -10,7 +10,7 @@ class UserTests(TestCase):
         self.user = User.objects.create_user(username='testuser', password='12345')
 
     def test_signup(self):
-        response = self.client.post(reverse('signup'), {'username': 'newuser', 'password1': 'password123', 'password2': 'password123'})
+        response = self.client.post(reverse('signup'), {'username': 'newuser', 'password1': '12345678Roi', 'password2': '12345678Roi'})
         if response.status_code == 200:
             print(response.context['form'].errors)  # This will print the form errors in the console during the test run
         self.assertEqual(response.status_code, 302)  # Redirect after successful signup
@@ -18,11 +18,11 @@ class UserTests(TestCase):
 
 
     def test_login(self):
-        response = self.client.post(reverse('login'), {'username': 'testuser', 'password': '12345'})
+        response = self.client.post(reverse('login'), {'username': 'testuser', 'password': '12345678Roi'})
         self.assertEqual(response.status_code, 302)  # Redirect after successful login
 
     def test_logout(self):
-        self.client.login(username='testuser', password='12345')
+        self.client.login(username='testuser', password='12345678Roi')
         response = self.client.get(reverse('logout'))
         self.assertEqual(response.status_code, 302)  # Redirect to login after logout
 

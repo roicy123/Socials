@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DJANGO_SETTINGS_MODULE = 'social_media_feed.settings'
+        PYTHONPATH = "/usr/src/app"
     }
     stages {
         stage('Clone Repository') {
@@ -21,7 +22,7 @@ pipeline {
             steps {
                 script {
                     docker.image("socialaws").inside {
-                        sh 'pytest' // Use your testing command
+                        sh 'pytest --ds=social_media_feed.settings' // Ensure it runs with Django settings
                     }
                 }
             }
@@ -29,7 +30,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image("socialaws").run("-d -p 8000:8000") // Run your app in detached mode
+                    docker.image("socialaws").run("-d -p 8000:8000") // Deploy app in detached mode
                 }
             }
         }

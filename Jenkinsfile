@@ -37,6 +37,10 @@ pipeline {
                             # Ensure Docker service is running
                             sudo systemctl start docker
                             
+                            # Check the current directory
+                            echo "Current directory contents:"
+                            ls -la
+                            
                             # Pull the latest Docker image
                             docker pull ${DOCKER_HUB_REPO}:${IMAGE_TAG}
                             

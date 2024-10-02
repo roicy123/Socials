@@ -13,7 +13,7 @@ class UserTests(TestCase):
         response = self.client.post(reverse('signup'), data={
             'username': 'testuser',
             'password': 'password12345',
-            # Add other required fields as needed
+            'password1' : 'password12345'
         })
         self.assertEqual(response.status_code, 201)  # Check the expected status code
 

@@ -33,9 +33,17 @@ pipeline {
                 script {
                     sshagent (credentials: ['ec2-ssh-key']) {
                         sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} << EOF
+                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} << 'EOF'
+                            # Ensure Docker service is running
+                            sudo systemctl start docker
+                            
+                            # Pull the latest Docker image
                             docker pull ${DOCKER_HUB_REPO}:${IMAGE_TAG}
+                            
+                            # Stop any running containers and remove them
                             docker-compose down
+                            
+                            # Start the application using Docker Compose
                             docker-compose up -d
                         EOF
                         """

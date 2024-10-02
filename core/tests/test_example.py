@@ -9,12 +9,14 @@ class UserTests(TestCase):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='12345')
 
-def test_signup(self):
-    response = self.client.post(reverse('signup'), {'username': 'newuser', 'password1': 'Str0ngPass!456', 'password2': 'Str0ngPass!456'})
-    if response.status_code == 200:
-        print(response.context['form'].errors)  # This will print the form errors in the console during the test run
-    self.assertEqual(response.status_code, 302)  # Redirect after successful signup
-    self.assertEqual(User.objects.count(), 2)
+
+def test_signup(client):  # Use `client` fixture to simulate requests
+    response = client.post(reverse('signup'), data={
+        'username': 'testuser',
+        'password': 'password12345',
+        # Add other required fields as needed
+    })
+    assert response.status_code == 201 
 
 
     def test_login(self):

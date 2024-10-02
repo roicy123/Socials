@@ -33,21 +33,19 @@ pipeline {
                 script {
                     sshagent (credentials: ['ec2-ssh-key']) {
                         sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} << 'EOF'
-                            # Ensure Docker and Docker Compose are installed
-                            sudo systemctl start docker || sudo apt-get install -y docker.io
-                            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                            sudo chmod +x /usr/local/bin/docker-compose
+                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} << EOF
+                            # Ensure Docker service is running
+                            sudo systemctl start docker
                             
-                            # Check Docker and Docker Compose installation
-                            docker --version
-                            docker-compose --version
+                            # Check the current directory
+                            echo "Current directory contents:"
+                            ls -la
                             
                             # Pull the latest Docker image
                             docker pull ${DOCKER_HUB_REPO}:${IMAGE_TAG}
                             
                             # Stop any running containers and remove them
-                            docker-compose down || echo "No containers to stop"
+                            docker-compose down
                             
                             # Start the application using Docker Compose
                             docker-compose up -d

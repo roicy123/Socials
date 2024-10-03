@@ -47,7 +47,7 @@ pipeline {
             steps {
                 sshagent (credentials: ['my-ec2-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@54-165-88-63 << 'EOF'
+                    ssh -o StrictHostKeyChecking=no ubuntu@54.165.88.63 << 'EOF'
                     cd /var/lib/jenkins/workspace/textwave
                     # Stop the running containers
                     docker-compose down || true

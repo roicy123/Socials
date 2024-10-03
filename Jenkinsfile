@@ -45,20 +45,27 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                sshagent (credentials: ['my-ec2-key']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@54.165.88.63 << 'EOF'
-                    cd /var/lib/jenkins/workspace/textwave
-                    # Stop the running containers
-                    docker-compose down || true
+                script {
+                    withCredentials([string(credentialsId: 'gemini-api-key', variable: 'GEMINI_API_KEY')]) {
+                        sshagent (credentials: ['my-ec2-key']) {
+                            sh '''
+                            ssh -o StrictHostKeyChecking=no ubuntu@54.165.88.63 << 'EOF'
+                            cd /var/lib/jenkins/workspace/textwave
+                            # Stop the running containers
+                            docker-compose down || true
 
-                    # Pull the latest image from Docker Hub
-                    docker pull roicy/socialaws:latest
+                            # Pull the latest image from Docker Hub
+                            docker pull roicy/socialaws:latest
 
-                    # Bring up the services with the latest image
-                    docker-compose up -d
+                            # Create an .env file with the GEMINI_API_KEY
+                            echo "GEMINI_API_KEY=$GEMINI_API_KEY" > .env
+
+                            # Bring up the services with the latest image
+                            docker-compose up -d
 EOF
-                    '''
+                            '''
+                        }
+                    }
                 }
             }
         }

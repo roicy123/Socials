@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     docker.image("roicy/socialaws:latest").inside {
-                        sh 'pytest --ds=social_medai_feed.settings'  // Run tests with Django settings
+                        sh 'pytest --ds=social_media_feed.settings'  // Run tests with Django settings
                     }
                 }
             }

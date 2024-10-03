@@ -1,57 +1,64 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_HUB_REPO = 'roicy/socialaws'
-        IMAGE_TAG = 'latest'
-        DOCKER_CREDENTIALS_ID = 'dockerhub_credentials' // Credentials setup in Jenkins
-        EC2_IP = '54.165.88.63' // Replace with actual EC2 IP
+        DJANGO_SETTINGS_MODULE = 'social_media_feed.settings'
+        PYTHONPATH = "/usr/src/app"
     }
+
     stages {
-        stage('Clone Repository') {
+        stage('Build') {
             steps {
-                git branch: 'main', url: 'https://github.com/roicy123/Socials.git', credentialsId: 'git_id'
+                sh 'docker build -t socialaws:latest .'  // Build Docker image
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Tag Image') {
             steps {
-                script {
-                    dockerImage = docker.build("${DOCKER_HUB_REPO}:${IMAGE_TAG}")
-                }
+                sh 'docker tag socialaws:latest roicy/socialaws:latest'  // Tag the image
             }
         }
-        stage('Push Docker Image') {
+
+        stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-                        dockerImage.push()
+                    // Using the Docker access token for authentication
+                    withCredentials([string(credentialsId: 'dockertoken', variable: 'DOCKER_TOKEN')]) {
+                        sh '''
+                        echo "$DOCKER_TOKEN" | docker login -u roicy --password-stdin
+                        docker push roicy/socialaws:latest
+                        '''
                     }
                 }
             }
         }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    docker.image("roicy/socialaws:latest").inside {
+                        sh 'pytest --ds=social_medai_feed.settings'  // Run tests with Django settings
+                    }
+                }
+            }
+        }
+
         stage('Deploy to EC2') {
             steps {
-                script {
-                    sshagent (credentials: ['ec2-ssh-key']) {
-                        sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} << EOF
-                            # Ensure Docker service is running
-                            sudo systemctl start docker
-                            
-                            # Check the current directory
-                            echo "Current directory contents:"
-                            ls -la
-                            
-                            # Pull the latest Docker image
-                            docker pull ${DOCKER_HUB_REPO}:${IMAGE_TAG}
-                            
-                            # Stop any running containers and remove them
-                            docker-compose down
-                            
-                            # Start the application using Docker Compose
-                            docker-compose up -d
-                        EOF
-                        """
-                    }
+                sshagent (credentials: ['my-ec2-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@54.209.119.85 << 'EOF'
+                    cd /var/lib/jenkins/workspace/textwave
+                    # Stop the running containers
+                    docker-compose down || true
+
+                    # Pull the latest image from Docker Hub
+                    docker pull roicy/socialaws:latest
+
+                    # Bring up the services with the latest image
+                    docker-compose up -d
+EOF
+                    '''
                 }
             }
         }

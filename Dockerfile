@@ -17,5 +17,6 @@ COPY . /usr/src/app/
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+
 # Run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "social_media_feed.wsgi:application"]

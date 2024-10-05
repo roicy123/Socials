@@ -47,7 +47,7 @@ pipeline {
             steps {
                 sshagent (credentials: ['my-ec2-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@184.73.99.112 << 'EOF'
+                    ssh -o StrictHostKeyChecking=no ubuntu@98.81.177.219 << 'EOF'
                     cd /var/lib/jenkins/workspace/textwave
                     # Stop the running containers
                     docker-compose down || true
@@ -59,6 +59,21 @@ pipeline {
                     docker-compose up -d
 EOF
                     '''
+                }
+            }
+        }
+
+        stage('Use Gemini API') {
+            steps {
+                script {
+                    // Accessing the Gemini API key from Jenkins credentials
+                    withCredentials([string(credentialsId: 'gemini-api-key', variable: 'GEMINI_API_KEY')]) {
+                        sh '''
+                        curl -X POST https://api.gemini.com/v1/endpoint \
+                        -H "Authorization: Bearer $GEMINI_API_KEY" \
+                        -d '{"data": "sample"}'
+                        '''
+                    }
                 }
             }
         }

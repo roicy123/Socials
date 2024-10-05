@@ -2,20 +2,20 @@ pipeline {
     agent any
 
     environment {
-        DJANGO_SETTINGS_MODULE = 'social_media_feed.settings'
+        DJANGO_SETTINGS_MODULE = 'todo_list.settings'
         PYTHONPATH = "/usr/src/app"
     }
 
     stages {
         stage('Build') {
             steps {
-                sh 'docker build -t socialaws:latest .'  // Build Docker image
+                sh 'docker build -t todoawsimg:latest .'  // Build Docker image
             }
         }
 
         stage('Tag Image') {
             steps {
-                sh 'docker tag socialaws:latest roicy/socialaws:latest'  // Tag the image
+                sh 'docker tag todoawsimg:latest nibin42/todoawsimg:latest'  // Tag the image
             }
         }
 
@@ -25,8 +25,8 @@ pipeline {
                     // Using the Docker access token for authentication
                     withCredentials([string(credentialsId: 'dockertoken', variable: 'DOCKER_TOKEN')]) {
                         sh '''
-                        echo "$DOCKER_TOKEN" | docker login -u roicy --password-stdin
-                        docker push roicy/socialaws:latest
+                        echo "$DOCKER_TOKEN" | docker login -u nibin42 --password-stdin
+                        docker push nibin42/todoawsimg:latest
                         '''
                     }
                 }
@@ -36,8 +36,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image("roicy/socialaws:latest").inside {
-                        sh 'pytest --ds=social_media_feed.settings'  // Run tests with Django settings
+                    docker.image("nibin42/todoawsimg:latest").inside {
+                        sh 'pytest --ds=todo_list.settings'  // Run tests with Django settings
                     }
                 }
             }
@@ -47,18 +47,33 @@ pipeline {
             steps {
                 sshagent (credentials: ['my-ec2-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@184.73.99.112 << 'EOF'
-                    cd /var/lib/jenkins/workspace/textwave
+                    ssh -o StrictHostKeyChecking=no ubuntu@98.81.177.219 << 'EOF'
+                    cd /var/lib/jenkins/workspace/mytodopipeline
                     # Stop the running containers
                     docker-compose down || true
 
                     # Pull the latest image from Docker Hub
-                    docker pull roicy/socialaws:latest
+                    docker pull nibin42/todoawsimg:latest
 
                     # Bring up the services with the latest image
                     docker-compose up -d
 EOF
                     '''
+                }
+            }
+        }
+
+        stage('Use Gemini API') {
+            steps {
+                script {
+                    // Accessing the Gemini API key from Jenkins credentials
+                    withCredentials([string(credentialsId: 'gemini-api-key', variable: 'GEMINI_API_KEY')]) {
+                        sh '''
+                        curl -X POST https://api.gemini.com/v1/endpoint \
+                        -H "Authorization: Bearer $GEMINI_API_KEY" \
+                        -d '{"data": "sample"}'
+                        '''
+                    }
                 }
             }
         }
